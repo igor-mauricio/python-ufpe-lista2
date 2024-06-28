@@ -5,7 +5,7 @@ class Money:
 
     def __init__(self, value: float):
         if value < 0:
-            raise ValueError
+            raise Exception("Invalid amount")
         
         self._value = value
 
@@ -24,7 +24,6 @@ class Money:
     def __ge__ (self, other):
         self._value >= other._value
 
-
     def __add__(self, other):
         return Money(self._value + other._value)
     
@@ -33,3 +32,7 @@ class Money:
     
     def __repr__(self) -> str:
         return f"<Money: {self._value}>"
+    
+    @property
+    def value(self) -> float:
+        return self._value

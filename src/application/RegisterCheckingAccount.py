@@ -6,7 +6,7 @@ from src.infra.ClientRepository import ClientRepository
 
 
 @dataclass
-class RegisterAccount:
+class RegisterCheckingAccount:
     accountRepository: AccountRepository
     clientRepository: ClientRepository
 
@@ -14,6 +14,6 @@ class RegisterAccount:
         client = self.clientRepository.getClientByCpf(clientCpf)
         if not client:
             raise Exception("Client not found")
-        account = Account.create(clientCpf, isCheckingAccount=False)
+        account = Account.create(clientCpf, isCheckingAccount=True)
         self.accountRepository.registerAccount(account)
-        return  account.id
+        return account.id

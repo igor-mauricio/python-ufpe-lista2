@@ -11,7 +11,10 @@ class ClientRepository(ABC):
     def registerClient(self, client: Client) -> None:...
 
 class ClientRepositoryMemory(ClientRepository):
-    _clients:list[Client] = []
+    _clients:list[Client]
+
+    def __init__(self):
+        self._clients = []
 
     def getClientByCpf(self, cpf: str) -> Client | None:
         for client in self._clients:

@@ -1,61 +1,64 @@
 from __future__ import annotations
 import uuid
+
+from src.domain.Money import Money
 class Account:
-    def __init__(self, id: str, client_id: str):
-        self._saldo = 0.0
-        self._client_id = client_id
+    def __init__(self, id: str, clientId: str, balance: Money, isCheckingAccount: bool):
+        self._balance = balance
+        self._clientId = clientId
         self._id = id
+        self._isCheckingAccount = isCheckingAccount
 
     @staticmethod
-    def createAccount(self, client_id: str) -> Account:
+    def create(clientId: str, isCheckingAccount: bool) -> Account:
         id = str(uuid.uuid4())
-        return Account(id, client_id)
+        balance = 0.0
+        return Account(id, clientId, Money(balance), isCheckingAccount)
     
     @staticmethod
-    def restoreAccount(self, id: str, client_id: str, saldo: float) -> Account:
-        account = Account(id, client_id)
-        account._saldo = saldo
-        return account
-
-    def getSaldo(self) -> float:
-        return self._saldo
+    def restore(id: str, clientId: str, balance: float, isCheckingAccount: bool) -> Account:
+        return Account(id, clientId, Money(balance), isCheckingAccount)
     
-    def sacar(self, dinheiro:float):
-        if self.getSaldo() < dinheiro:
+    def withdraw(self, amount:float):
+        if self.balance < amount:
             raise Exception("Saldo insuficiente")
-        self._saldo = self.getSaldo() - dinheiro
+        self._balance -= Money(amount)
 
-    def depositar(self, dinheiro:float):
-        if self.getSaldo() < dinheiro:
-            raise Exception("Saldo insuficiente") 
-        self._saldo = self.getSaldo() - dinheiro
+    def deposit(self, amount:float):
+        self._balance += Money(amount)
     
-    def transferencia(self, dinheiro: float, conta:Account):
-        if self.getSaldo() < dinheiro:
+    def transfer(self, amount: float, account:Account):
+        if self.balance < amount:
             raise Exception("Saldo insuficiente")
-        self._saldo = self.getSaldo() - dinheiro
-        conta._saldo = conta.getSaldo() + dinheiro
+        self._balance -= Money(amount)
+        account._balance += Money(amount)
 
-class CheckingAccount(Account):
-    _id: str
+    def pay(self, amount: float):
+        if not self._isCheckingAccount:
+            raise Exception("Conta não é corrente")
+        self.withdraw(amount)
 
-    def __init__(self, client_id: str, id: str):
-        super().__init__(id, client_id)
-        self._id = id   
+    def pix(self, amount: float, account:Account):
+        if not self._isCheckingAccount:
+            raise Exception("Conta não é corrente")
+        self.transfer(amount, account)
 
-    @staticmethod
-    def createAccount(self, client_id: str) -> CheckingAccount:
-        id = str(uuid.uuid4())
-        return CheckingAccount(id, client_id)
+    @property
+    def id(self):
+        return self._id
     
-    @staticmethod
-    def restoreAccount(self, id: str, client_id: str, saldo: float) -> CheckingAccount:
-        account = CheckingAccount(id, client_id)
-        account._saldo = saldo
-        return account
-
-    def pagar(self, dinheiro: float):
-        super().sacar(dinheiro)
-
-    def pix(self, dinheiro: float, conta:CheckingAccount):
-        super().transferencia(dinheiro, conta)
+    @property
+    def balance(self) -> float:
+        return self._balance.value
+    
+    @property
+    def clientId(self) -> str:
+        return self._clientId
+    
+    @property
+    def isCheckingAccount(self) -> bool:
+        return self._isCheckingAccount
+    
+    @property
+    def type(self) -> str:
+        return "Corrente" if self._isCheckingAccount else "Padrão"
